@@ -82,7 +82,7 @@ public class S3ConfigurationProvider implements ConfigurationSourceProvider {
 
 	    return configFileObject.getObjectContent();
 	} else {
-	    throw new IllegalArgumentException("Configuration file S3 URI uses unsupported scheme: " + uri.getScheme());
+	    throw new IOException("Configuration file S3 URI uses unsupported scheme: " + uri.getScheme());
 	}
     }
 }
