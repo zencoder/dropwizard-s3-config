@@ -8,21 +8,31 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 
 import io.dropwizard.configuration.ConfigurationSourceProvider;
 
 /**
  * Provider to read a Dropwizard configuration file from an S3 location. Accepts
- * an S3 URI referring to the S3 bucket and key where the configuration file is
- * stored. The region reported by the EC2 instance metadata will be used to
- * retrieve the S3 configuration. The standard AWS environment variables
- * <code>AWS_ACCESS_KEY</code> and <code>AWS_SECRET_ACCESS_KEY</code> are used
- * by the AWS SDK.
+ * an S3 URI referring to the S3 bucket and key where the configuration file can
+ * be found. The standard AWS environment variables <code>AWS_ACCESS_KEY</code>
+ * and <code>AWS_SECRET_ACCESS_KEY</code> are used for authentication by the AWS
+ * SDK.
+ * 
+ * If the <code>AWS_S3_ENDPOINT</code> environment variable is set, then it will
+ * be supplied to the S3 client as the service endpoint. This is useful for
+ * testing an application with a fake S3 server running locally or some other
+ * machine that's not part of S3.
+ * 
+ * If the <code>AWS_REGION</code> environment variable is set, then it will be
+ * used to override the Region that would otherwise be read from the EC2
+ * instance metadata. This allows you to read from an S3 bucket in a region
+ * other than the one the application is running in.
  * 
  * @author Scott Kidder
  *
@@ -30,7 +40,7 @@ import io.dropwizard.configuration.ConfigurationSourceProvider;
 public class S3ConfigurationProvider implements ConfigurationSourceProvider {
 
     private static final String AWS_S3_ENDPOINT_ENV_VAR = "AWS_S3_ENDPOINT";
-
+    private static final String AWS_REGION_ENV_VAR = "AWS_REGION";
     private static final String S3_URI_SCHEME = "s3";
 
     /*
@@ -45,7 +55,7 @@ public class S3ConfigurationProvider implements ConfigurationSourceProvider {
 	if (path == null || path.trim().length() == 0) {
 	    throw new IOException("S3 URI to configuration file was unspecified or empty");
 	}
-	
+
 	final URI uri;
 	try {
 	    uri = new URI(path);
@@ -65,22 +75,18 @@ public class S3ConfigurationProvider implements ConfigurationSourceProvider {
 	    }
 
 	    final AmazonS3 s3Client = new AmazonS3Client();
-	    final String alternateS3Endpoint = System.getenv(AWS_S3_ENDPOINT_ENV_VAR);
-	    if (alternateS3Endpoint != null) {
-		// specify the S3 endpoint, useful for testing against a local
-		// fake S3, which means we probably also want to use the bucket
-		// name in the path, not as a sub-domain in the host
-		s3Client.setEndpoint(alternateS3Endpoint);
+	    if (System.getenv(AWS_S3_ENDPOINT_ENV_VAR) != null) {
+		s3Client.setEndpoint(System.getenv(AWS_S3_ENDPOINT_ENV_VAR));
 		s3Client.setS3ClientOptions(new S3ClientOptions().withPathStyleAccess(true));
+	    } else if (System.getenv(AWS_REGION_ENV_VAR) != null) {
+		s3Client.setRegion(Region.getRegion(Regions.fromName(System.getenv(AWS_REGION_ENV_VAR))));
 	    }
-	    final S3Object configFileObject;
+
 	    try {
-		configFileObject = s3Client.getObject(new GetObjectRequest(bucket, key));
+		return s3Client.getObject(new GetObjectRequest(bucket, key)).getObjectContent();
 	    } catch (RuntimeException e) {
 		throw new IOException("Error retrieving configuration from S3", e);
 	    }
-
-	    return configFileObject.getObjectContent();
 	} else {
 	    throw new IOException("Configuration file S3 URI uses unsupported scheme: " + uri.getScheme());
 	}
