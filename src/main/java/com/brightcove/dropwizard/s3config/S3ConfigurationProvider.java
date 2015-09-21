@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.zencoder.dropwizard.s3config;
+package com.brightcove.dropwizard.s3config;
 
 import java.io.IOException;
 import java.io.InputStream;

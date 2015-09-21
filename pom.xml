@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.zencoder</groupId>
+	<groupId>com.brightcove</groupId>
 	<artifactId>dropwizard-s3-config</artifactId>
 	<version>1.0.0</version>
 	<developers>
@@ -12,7 +12,7 @@
 	</developers>
 	<name>Dropwizard S3 Configuration Provider</name>
 	<description>Configuration provider for the Dropwizard application framework to load the application configuration from an S3 URI.</description>
-	<url>https://github.com/skidder/dropwizard-s3-config</url>
+	<url>https://github.com/zencoder/dropwizard-s3-config</url>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -21,7 +21,7 @@
 		</license>
 	</licenses>
 	<scm>
-		<url>https://github.com/skidder/dropwizard-s3-config.git</url>
+		<url>https://github.com/zencoder/dropwizard-s3-config.git</url>
 	</scm>
 	<build>
 		<plugins>

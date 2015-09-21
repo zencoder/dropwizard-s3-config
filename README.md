@@ -4,7 +4,7 @@ Dropwizard provider to retrieve application configuration from an S3 URI.
 ## Maven
 ```xml
 <dependency>
-  <groupId>com.zencoder</groupId>
+  <groupId>com.brightcove</groupId>
   <artifactId>dropwizard-s3-config</artifactId>
   <version>1.0.0</version>
 </dependency>
@@ -15,7 +15,7 @@ Dropwizard provider to retrieve application configuration from an S3 URI.
     dependencies {
         compile(
         ...
-                'com.zencoder:dropwizard-s3-config:1.0.0',
+                'com.brightcove:dropwizard-s3-config:1.0.0',
 ```
 
 ## Usage
